@@ -1,4 +1,4 @@
-# python-name = input("Enter student name: ")
+name = input("Enter student name: ")
 
 m1 = int(input("Enter marks of Subject 1: "))
 m2 = int(input("Enter marks of Subject 2: "))
