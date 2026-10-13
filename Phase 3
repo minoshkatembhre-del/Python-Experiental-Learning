@@ -1,0 +1,130 @@
+
+import json
+import os
+
+FILE_NAME = "students.json"
+
+
+def load_students():
+    if os.path.exists(FILE_NAME):
+        try:
+            with open(FILE_NAME, "r") as file:
+                return json.load(file)
+        except (json.JSONDecodeError, OSError):
+            return []
+    return []
+
+
+def save_students(students):
+    with open(FILE_NAME, "w") as file:
+        json.dump(students, file, indent=4)
+
+
+def calculate_result(marks):
+    total = sum(marks)
+    percentage = total / 3
+
+    if percentage >= 75:
+        grade = "A"
+    elif percentage >= 60:
+        grade = "B"
+    elif percentage >= 50:
+        grade = "C"
+    elif percentage >= 40:
+        grade = "D"
+    else:
+        grade = "F"
+
+    result = "PASS" if percentage >= 40 else "FAIL"
+    return total, percentage, grade, result
+
+
+def main():
+    students = load_students()
+
+    print("\n" + "=" * 70)
+    print("       STUDENT RESULT MANAGEMENT SYSTEM")
+    print("=" * 70)
+
+    while True:
+        try:
+            count = int(input(
+                "\nHow many students' results do you want to calculate? "
+            ))
+            if count > 0:
+                break
+            print("Enter a number greater than zero.")
+        except ValueError:
+            print("Please enter a valid number.")
+
+    for i in range(count):
+        print(f"\nEnter details of Student {i + 1}")
+        print("-" * 40)
+
+        roll = input("Roll Number: ").strip()
+        name = input("Student Name: ").strip()
+
+        marks = []
+        for j in range(1, 4):
+            while True:
+                try:
+                    mark = float(input(f"Subject {j} Marks (0-100): "))
+                    if 0 <= mark <= 100:
+                        marks.append(mark)
+                        break
+                    print("Marks must be between 0 and 100.")
+                except ValueError:
+                    print("Enter valid numeric marks.")
+
+        total, percentage, grade, result = calculate_result(marks)
+
+        student = {
+            "roll": roll,
+            "name": name,
+            "marks": marks,
+            "total": total,
+            "percentage": round(percentage, 2),
+            "grade": grade,
+            "result": result
+        }
+
+        # Replace an existing record with the same roll number.
+        students = [
+            s for s in students if s.get("roll") != roll
+        ]
+        students.append(student)
+
+    save_students(students)
+
+    print("\n" + "=" * 90)
+    print("                 FINAL STUDENT RESULT REPORT")
+    print("=" * 90)
+
+    print(
+        f'{"Roll No.":<12}{"Name":<20}{"S1":>6}'
+        f'{"S2":>6}{"S3":>6}{"Total":>9}'
+        f'{"Percent":>11}{"Grade":>8}{"Result":>9}'
+    )
+    print("-" * 90)
+
+    for s in students:
+        print(
+            f'{s["roll"]:<12}{s["name"][:19]:<20}'
+            f'{s["marks"][0]:>6.0f}'
+            f'{s["marks"][1]:>6.0f}'
+            f'{s["marks"][2]:>6.0f}'
+            f'{s["total"]:>9.0f}'
+            f'{s["percentage"]:>10.2f}%'
+            f'{s["grade"]:>8}'
+            f'{s["result"]:>9}'
+        )
+
+    print("-" * 90)
+    print("Total records:", len(students))
+    print("Result report generated successfully.")
+    print("Records saved in", FILE_NAME)
+    print("=" * 90)
+
+
+if __name__ == "__main__":
+    main()
