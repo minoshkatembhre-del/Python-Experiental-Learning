@@ -1,0 +1,493 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Result Management System</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f0f4f8;
+            margin: 0;
+            padding: 20px;
+            color: #222;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: auto;
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            background: #17365d;
+            color: white;
+            padding: 22px 10px;
+            border-radius: 8px;
+            font-size: 26px;
+        }
+
+        h2 {
+            color: #17365d;
+            margin-top: 25px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            font-weight: bold;
+            margin-bottom: 7px;
+        }
+
+        input {
+            padding: 11px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 15px;
+            width: 100%;
+        }
+
+        .marks-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        button {
+            padding: 12px 18px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: bold;
+            margin: 15px 5px 0 0;
+        }
+
+        .primary {
+            background: #17365d;
+            color: white;
+        }
+
+        .secondary {
+            background: #16834a;
+            color: white;
+        }
+
+        .danger {
+            background: #c62828;
+            color: white;
+        }
+
+        button:hover {
+            opacity: 0.85;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+            margin-top: 15px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 850px;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 11px 8px;
+            text-align: center;
+        }
+
+        th {
+            background: #17365d;
+            color: white;
+        }
+
+        tbody tr:nth-child(even) {
+            background: #f3f6fa;
+        }
+
+        .pass {
+            color: #16834a;
+            font-weight: bold;
+        }
+
+        .fail {
+            color: #c62828;
+            font-weight: bold;
+        }
+
+        .summary {
+            background: #e8eef7;
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+
+        .message {
+            margin-top: 12px;
+            font-weight: bold;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 25px;
+            color: #666;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+
+            .container {
+                padding: 15px;
+            }
+
+            h1 {
+                font-size: 21px;
+            }
+
+            .form-grid,
+            .marks-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+<div class="container">
+
+    <h1>STUDENT RESULT MANAGEMENT SYSTEM</h1>
+
+    <h2>Enter Student Details</h2>
+
+    <form id="studentForm">
+        <div class="form-grid">
+            <div class="form-group">
+                <label for="roll">Roll Number</label>
+                <input type="text" id="roll" required>
+            </div>
+
+            <div class="form-group">
+                <label for="name">Student Name</label>
+                <input type="text" id="name" required>
+            </div>
+        </div>
+
+        <h2>Subject Marks (0–100)</h2>
+
+        <div class="marks-grid">
+            <div class="form-group">
+                <label for="s1">Subject 1</label>
+                <input type="number" id="s1"
+                       min="0" max="100" step="any" required>
+            </div>
+
+            <div class="form-group">
+                <label for="s2">Subject 2</label>
+                <input type="number" id="s2"
+                       min="0" max="100" step="any" required>
+            </div>
+
+            <div class="form-group">
+                <label for="s3">Subject 3</label>
+                <input type="number" id="s3"
+                       min="0" max="100" step="any" required>
+            </div>
+        </div>
+
+        <button type="submit" class="primary">
+            Calculate & Save Result
+        </button>
+
+        <button type="reset" class="secondary">
+            Clear Form
+        </button>
+    </form>
+
+    <p id="message" class="message" role="status"></p>
+
+    <h2>Final Student Result Report</h2>
+
+    <div class="table-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    <th>Roll No.</th>
+                    <th>Name</th>
+                    <th>S1</th>
+                    <th>S2</th>
+                    <th>S3</th>
+                    <th>Total</th>
+                    <th>Percentage</th>
+                    <th>Grade</th>
+                    <th>Result</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="resultTable"></tbody>
+        </table>
+    </div>
+
+    <div class="summary">
+        Total Records: <span id="totalRecords">0</span>
+    </div>
+
+    <button class="danger" id="clearAll">
+        Delete All Records
+    </button>
+
+    <footer>
+        Student Result Management System
+    </footer>
+
+</div>
+
+<script>
+    const STORAGE_KEY = "studentResults";
+
+    let students = loadStudents();
+
+    function loadStudents() {
+        try {
+            const data = JSON.parse(
+                localStorage.getItem(STORAGE_KEY) || "[]"
+            );
+
+            return Array.isArray(data) ? data : [];
+        } catch (error) {
+            return [];
+        }
+    }
+
+    function saveStudents() {
+        try {
+            localStorage.setItem(
+                STORAGE_KEY,
+                JSON.stringify(students)
+            );
+            return true;
+        } catch (error) {
+            showMessage(
+                "Unable to save records in this browser.",
+                true
+            );
+            return false;
+        }
+    }
+
+    function calculateResult(marks) {
+        const total = marks.reduce(
+            (sum, mark) => sum + mark, 0
+        );
+
+        const percentage = total / 3;
+
+        let grade;
+
+        if (percentage >= 75) {
+            grade = "A";
+        } else if (percentage >= 60) {
+            grade = "B";
+        } else if (percentage >= 50) {
+            grade = "C";
+        } else if (percentage >= 40) {
+            grade = "D";
+        } else {
+            grade = "F";
+        }
+
+        const result = percentage >= 40 ? "PASS" : "FAIL";
+
+        return {
+            total,
+            percentage: Number(percentage.toFixed(2)),
+            grade,
+            result
+        };
+    }
+
+    function showMessage(message, isError = false) {
+        const element = document.getElementById("message");
+        element.textContent = message;
+        element.style.color = isError ? "#c62828" : "#16834a";
+    }
+
+    document.getElementById("studentForm")
+        .addEventListener("submit", function(event) {
+            event.preventDefault();
+
+            const roll = document.getElementById("roll")
+                .value.trim();
+
+            const name = document.getElementById("name")
+                .value.trim();
+
+            const marks = ["s1", "s2", "s3"].map(id =>
+                Number(document.getElementById(id).value)
+            );
+
+            if (!roll || !name) {
+                showMessage(
+                    "Please enter the roll number and student name.",
+                    true
+                );
+                return;
+            }
+
+            if (marks.some(mark =>
+                !Number.isFinite(mark) || mark < 0 || mark > 100
+            )) {
+                showMessage(
+                    "Each subject mark must be between 0 and 100.",
+                    true
+                );
+                return;
+            }
+
+            const result = calculateResult(marks);
+
+            const student = {
+                roll,
+                name,
+                marks,
+                total: result.total,
+                percentage: result.percentage,
+                grade: result.grade,
+                result: result.result
+            };
+
+            // Replace an existing record with the same roll number.
+            const index = students.findIndex(
+                s => s.roll === roll
+            );
+
+            if (index !== -1) {
+                students[index] = student;
+            } else {
+                students.push(student);
+            }
+
+            if (!saveStudents()) {
+                return;
+            }
+
+            renderTable();
+
+            showMessage(
+                index !== -1
+                    ? "Student record updated successfully."
+                    : "Student result saved successfully."
+            );
+
+            this.reset();
+        });
+
+    function renderTable() {
+        const tbody = document.getElementById("resultTable");
+        tbody.replaceChildren();
+
+        students.forEach((student, index) => {
+            const row = document.createElement("tr");
+
+            const values = [
+                student.roll,
+                student.name,
+                ...student.marks.map(mark =>
+                    Number(mark).toFixed(2)
+                ),
+                Number(student.total).toFixed(2),
+                Number(student.percentage).toFixed(2) + "%",
+                student.grade,
+                student.result
+            ];
+
+            values.forEach((value, i) => {
+                const cell = document.createElement("td");
+                cell.textContent = value;
+
+                if (i === 8) {
+                    cell.className =
+                        student.result === "PASS" ? "pass" : "fail";
+                }
+
+                row.appendChild(cell);
+            });
+
+            const actionCell = document.createElement("td");
+            const deleteButton = document.createElement("button");
+
+            deleteButton.textContent = "Delete";
+            deleteButton.className = "danger";
+            deleteButton.style.margin = "0";
+
+            deleteButton.addEventListener("click", () => {
+                const removed = students.splice(index, 1)[0];
+
+                if (!saveStudents()) {
+                    students.splice(index, 0, removed);
+                    return;
+                }
+
+                renderTable();
+                showMessage("Student record deleted.");
+            });
+
+            actionCell.appendChild(deleteButton);
+            row.appendChild(actionCell);
+            tbody.appendChild(row);
+        });
+
+        document.getElementById("totalRecords").textContent =
+            students.length;
+    }
+
+    document.getElementById("clearAll")
+        .addEventListener("click", () => {
+            if (students.length === 0) {
+                showMessage("There are no records to delete.", true);
+                return;
+            }
+
+            if (confirm("Are you sure you want to delete all records?")) {
+                const previousStudents = students;
+                students = [];
+
+                if (!saveStudents()) {
+                    students = previousStudents;
+                    return;
+                }
+
+                renderTable();
+                showMessage("All student records deleted.");
+            }
+        });
+
+    renderTable();
+</script>
+</body>
+</html>
